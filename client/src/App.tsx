@@ -3,37 +3,56 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import SiteLayout from "./components/SiteLayout";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { CartProvider } from "./contexts/CartContext";
+
 import Home from "./pages/Home";
+import Arsenal from "./pages/Arsenal";
+import Equipo from "./pages/Equipo";
+import ProductDetail from "./pages/ProductDetail";
+import Checkout from "./pages/Checkout";
+import Community from "./pages/Community";
+import Sightings from "./pages/Sightings";
+import Web3Radar from "./pages/Web3Radar";
+import Arcade from "./pages/Arcade";
+import News from "./pages/News";
+import NewsArticle from "./pages/NewsArticle";
+import Admin from "./pages/Admin";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <SiteLayout>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/arsenal" component={Arsenal} />
+        <Route path="/equipo" component={Equipo} />
+        <Route path="/producto/:slug" component={ProductDetail} />
+        <Route path="/checkout" component={Checkout} />
+        <Route path="/comunidad" component={Community} />
+        <Route path="/avistamientos" component={Sightings} />
+        <Route path="/radar-web3" component={Web3Radar} />
+        <Route path="/arcade" component={Arcade} />
+        <Route path="/transmisiones" component={News} />
+        <Route path="/transmisiones/:slug" component={NewsArticle} />
+        <Route path="/admin" component={Admin} />
+        <Route path="/404" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </SiteLayout>
   );
 }
-
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+      <ThemeProvider defaultTheme="dark">
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster richColors position="bottom-right" />
+            <Router />
+          </TooltipProvider>
+        </CartProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
