@@ -1,5 +1,36 @@
 import { TRPCError } from "@trpc/server";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import { vi } from "vitest";
+
+vi.mock("./db", () => {
+  return {
+    listProducts: vi.fn(() => []),
+    createProduct: vi.fn(() => ({ success: true })),
+    listSightings: vi.fn(() => [{ title: "Mock Sighting" }]),
+    createSighting: vi.fn(() => ({ success: true })),
+    updateSightingStatus: vi.fn(),
+    deleteSighting: vi.fn(),
+    voteSighting: vi.fn(),
+    addUserXp: vi.fn(),
+    logActivity: vi.fn(),
+    saveScore: vi.fn(() => ({ xpGain: 10 })),
+    getTopScores: vi.fn(() => [{ score: 100 }]),
+    getLeaderboard: vi.fn(() => [{ score: 100 }]),
+    getUserBestScore: vi.fn(() => ({ score: 50 })),
+    listNews: vi.fn(() => [{ published: true }]),
+    createNews: vi.fn(() => ({ success: true })),
+  };
+});
+
+vi.mock("./_core/llm", () => {
+  return {
+    invokeLLM: vi.fn(() => ({
+      choices: [{ message: { content: '{"status": "normal"}' } }]
+    })),
+  };
+});
+
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 

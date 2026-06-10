@@ -178,7 +178,22 @@ function AdminNews() {
   const createMutation = trpc.news.create.useMutation({ onSuccess: () => { utils.news.listAll.invalidate(); toast.success("Artículo creado"); resetForm(); } });
   const removeMutation = trpc.news.remove.useMutation({ onSuccess: () => { utils.news.listAll.invalidate(); toast.success("Eliminado"); } });
 
-  const [form, setForm] = useState({ title: "", slug: "", category: "editorial" as const, excerpt: "", body: "", imageUrl: "", authorName: "", published: true });
+  const autoGenerateMutation = trpc.news.autoGenerate.useMutation({
+    onSuccess: (data) => {
+      setForm((f) => ({
+        ...f,
+        title: data.title,
+        slug: data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""),
+        excerpt: data.excerpt,
+        body: data.body,
+        category: "uap_alert"
+      }));
+      toast.success("Señal interceptada (IA generada)");
+    },
+    onError: () => toast.error("Fallo en la comunicación con la IA"),
+  });
+
+  const [form, setForm] = useState({ title: "", slug: "", category: "editorial", excerpt: "", body: "", imageUrl: "", authorName: "", published: true });
   const resetForm = () => setForm({ title: "", slug: "", category: "editorial", excerpt: "", body: "", imageUrl: "", authorName: "", published: true });
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -202,13 +217,23 @@ function AdminNews() {
               <input type="checkbox" checked={form.published} onChange={(e) => set("published", e.target.checked)} className="accent-alien-green" /> Publicado
             </label>
           </div>
-          <button
-            disabled={!form.title || !form.slug || createMutation.isPending}
-            onClick={() => createMutation.mutate(form as any)}
-            className="btn-glow w-full font-display font-bold uppercase tracking-widest py-3 mt-4 disabled:opacity-40"
-          >
-            {createMutation.isPending ? "Publicando..." : "Publicar Artículo"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              disabled={!form.title || !form.slug || createMutation.isPending}
+              onClick={() => createMutation.mutate(form as any)}
+              className="btn-glow flex-1 font-display font-bold uppercase tracking-widest py-3 mt-4 disabled:opacity-40"
+            >
+              {createMutation.isPending ? "Publicando..." : "Publicar Artículo"}
+            </button>
+            <button
+              disabled={autoGenerateMutation.isPending}
+              onClick={() => autoGenerateMutation.mutate()}
+              className="ghost-border flex-1 font-display font-bold uppercase tracking-widest py-3 mt-4 hover:text-alien-green disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">auto_awesome</span>
+              {autoGenerateMutation.isPending ? "Interceptando..." : "Interceptar Señal"}
+            </button>
+          </div>
         </div>
 
         <div className="ghost-border bg-[#0e0e0e] p-6 max-h-[600px] overflow-y-auto">

@@ -9,6 +9,26 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 
+const app = express();
+
+// Configure body parser with larger size limit for file uploads
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+registerStorageProxy(app);
+registerOAuthRoutes(app);
+
+// tRPC API
+app.use(
+  "/api/trpc",
+  createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  })
+);
+
+export default app;
+
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
     const server = net.createServer();
@@ -29,21 +49,8 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
-  const app = express();
   const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  registerStorageProxy(app);
-  registerOAuthRoutes(app);
-  // tRPC API
-  app.use(
-    "/api/trpc",
-    createExpressMiddleware({
-      router: appRouter,
-      createContext,
-    })
-  );
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
@@ -63,4 +70,8 @@ async function startServer() {
   });
 }
 
-startServer().catch(console.error);
+// Only start the server if we're not running in Firebase Cloud Functions
+// When using Firebase Functions, process.env.FUNCTIONS_EMULATOR or process.env.K_SERVICE is set
+if (!process.env.FUNCTIONS_EMULATOR && !process.env.K_SERVICE && process.env.NODE_ENV !== "test") {
+  startServer().catch(console.error);
+}
