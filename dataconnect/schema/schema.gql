@@ -1,0 +1,57 @@
+# Firebase Data Connect GraphQL Schema
+# Represenation of alien.mx tables (Users, Products, Sightings) backed by PostgreSQL/Cloud SQL.
+
+type User @table {
+  id: String! @column(name: "id")
+  openId: String! @unique
+  name: String
+  email: String
+  loginMethod: String
+  role: String! @default(value: "user")
+  membershipTier: String! @default(value: "initiate")
+  xp: Int! @default(value: 0)
+  # Float replaces decimal precision for GraphQL basic types, but Postgres handles numeric
+  tokenBalance: Float! @default(value: 0.0)
+  walletAddress: String
+  avatarUrl: String
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+  lastSignedIn: Timestamp! @default(expr: "request.time")
+
+  # Relationships
+  sightings: [Sighting!]!
+}
+
+type Product @table {
+  id: String! @column(name: "id")
+  slug: String! @unique
+  name: String!
+  category: String!
+  description: String
+  priceMxn: Float!
+  imageUrl: String
+  badge: String
+  inStock: Boolean! @default(value: true)
+  # Sizes array can be stored as JSON
+  sizes: Any
+  amazonAsin: String
+  mercadolibreId: String
+  featured: Boolean! @default(value: false)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Sighting @table {
+  id: String! @column(name: "id")
+  # Foreign key to User
+  user: User @ref
+  title: String!
+  description: String
+  lat: Float!
+  lng: Float!
+  locationName: String
+  level: Int! @default(value: 1)
+  votes: Int! @default(value: 0)
+  status: String! @default(value: "pending")
+  createdAt: Timestamp! @default(expr: "request.time")
+}
