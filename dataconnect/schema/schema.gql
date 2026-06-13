@@ -20,6 +20,11 @@ type User @table {
 
   # Relationships
   sightings: [Sighting!]!
+  cartItems: [CartItem!]!
+  orders: [Order!]!
+  sightingVotes: [SightingVote!]!
+  scores: [Score!]!
+  activities: [ActivityFeed!]!
 }
 
 type Product @table {
@@ -39,6 +44,33 @@ type Product @table {
   featured: Boolean! @default(value: false)
   createdAt: Timestamp! @default(expr: "request.time")
   updatedAt: Timestamp! @default(expr: "request.time")
+
+  # Relationships
+  cartItems: [CartItem!]!
+}
+
+type CartItem @table {
+  id: String! @column(name: "id")
+  user: User! @ref
+  product: Product! @ref
+  quantity: Int! @default(value: 1)
+  size: String
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type Order @table {
+  id: String! @column(name: "id")
+  user: User! @ref
+  # JSON representation of items
+  items: Any!
+  subtotalMxn: Float!
+  discountMxn: Float! @default(value: 0.0)
+  totalMxn: Float!
+  paymentMethod: String! @default(value: "card")
+  status: String! @default(value: "pending")
+  shippingName: String
+  shippingAddress: String
+  createdAt: Timestamp! @default(expr: "request.time")
 }
 
 type Sighting @table {
@@ -53,5 +85,50 @@ type Sighting @table {
   level: Int! @default(value: 1)
   votes: Int! @default(value: 0)
   status: String! @default(value: "pending")
+  createdAt: Timestamp! @default(expr: "request.time")
+
+  # Relationships
+  sightingVotes: [SightingVote!]!
+}
+
+type SightingVote @table {
+  id: String! @column(name: "id")
+  sighting: Sighting! @ref
+  user: User! @ref
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type Score @table {
+  id: String! @column(name: "id")
+  user: User! @ref
+  game: String! @default(value: "crypto_crash")
+  score: Int!
+  multiplier: Float
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type NewsPost @table {
+  id: String! @column(name: "id")
+  slug: String! @unique
+  title: String!
+  excerpt: String
+  body: String
+  category: String! @default(value: "editorial")
+  imageUrl: String
+  authorName: String
+  published: Boolean! @default(value: true)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+
+  # Vector Search Embedding for pgvector Support
+  embedding: Vector @col(size: 768)
+}
+
+type ActivityFeed @table {
+  id: String! @column(name: "id")
+  user: User @ref
+  actorName: String
+  type: String! @default(value: "system")
+  message: String!
   createdAt: Timestamp! @default(expr: "request.time")
 }
