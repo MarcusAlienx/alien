@@ -1120,29 +1120,8 @@ Use `storagePut()` to upload files (see S3 File Storage section).
 
 ---
 
-## Manus OAuth Best Practices
+## Authentication
+Este proyecto ha sido migrado de Manus OAuth a **Firebase Authentication** usando Google Sign-In, completamente integrado con el sistema de base de datos MySQL relacional a través del router de tRPC `syncFirebaseUser` y el hook global `useAuth.ts`.
 
-**Key Rule:** Always use `window.location.origin` for redirect URLs—never hardcode domains or use `req.host`. Frontend and backend run on separate servers, so the frontend must pass its origin explicitly.
 
-**Unsupported browsers:** Safari Private Browsing, Firefox Strict ETP, Brave Aggressive Shields, or any browser blocking cookies.
-
-**Anti-patterns:**
-```ts
-// ❌ Never construct URLs from env vars or patterns
-const url = `https://${projectName}.manus.space/callback`;
-const url = `https://${process.env.APP_SUBDOMAIN}.example.com/verify`;
-```
-
-**Correct approach:** This template already implements the pattern correctly:
-- `client/src/const.ts`: `getLoginUrl(returnPath?)` encodes origin + returnPath in state
-- `server/_core/oauth.ts`: `parseState()` extracts origin from state for redirects
-
-**For invite/magic links:** When backend generates URLs, frontend must pass origin in the request:
-```ts
-// Frontend
-const createInvite = trpc.invites.create.useMutation();
-await createInvite.mutateAsync({ eventId: "123", origin: window.location.origin });
-
-// Backend - use input.origin to build the URL
-const inviteUrl = `${input.origin}/events/${eventId}/join?token=${token}`;
 ```

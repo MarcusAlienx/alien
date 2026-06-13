@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { NEWS_CATEGORIES, PRODUCT_CATEGORIES } from "@shared/const";
 import { useState } from "react";
@@ -8,6 +7,7 @@ import { toast } from "sonner";
 type AdminTab = "dashboard" | "products" | "news" | "sightings" | "orders";
 
 export default function Admin() {
+  const { login } = useAuth();
   const { user, isAuthenticated, loading } = useAuth();
   const [tab, setTab] = useState<AdminTab>("dashboard");
 
@@ -18,7 +18,7 @@ export default function Admin() {
       <div className="py-32 text-center flex flex-col items-center gap-4">
         <span className="material-symbols-outlined text-5xl text-foreground/30">lock</span>
         <p className="text-foreground/60">Acceso restringido. Conéctate primero.</p>
-        <a href={getLoginUrl()} className="btn-glow font-display font-bold px-6 py-3 uppercase tracking-wide">Conectar</a>
+        <a onClick={(e) => { e.preventDefault(); if(typeof login === "function") login(); }} href="#" className="btn-glow font-display font-bold px-6 py-3 uppercase tracking-wide">Conectar</a>
       </div>
     );
   }

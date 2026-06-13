@@ -1,6 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import SectionHeading from "@/components/SectionHeading";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -8,6 +7,7 @@ import { toast } from "sonner";
 type GameState = "idle" | "running" | "cashed" | "crashed";
 
 export default function Arcade() {
+  const { login } = useAuth();
   const { isAuthenticated } = useAuth();
   const utils = trpc.useUtils();
   const leaderboardQuery = trpc.arcade.leaderboard.useQuery();
@@ -31,7 +31,7 @@ export default function Arcade() {
 
   function startGame() {
     if (!isAuthenticated) {
-      toast("Conéctate para jugar", { action: { label: "Entrar", onClick: () => (window.location.href = getLoginUrl()) } });
+      toast("Conéctate para jugar", { action: { label: "Entrar", onClick: () => (login()) } });
       return;
     }
     // Cosmic RNG: distribution heavy under 3x, occasional moon shots

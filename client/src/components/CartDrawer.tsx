@@ -5,13 +5,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { getLoginUrl } from "@/const";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { CRYPTO_DISCOUNT_RATE } from "@shared/const";
 import { useLocation } from "wouter";
 
 export default function CartDrawer() {
+  const { login } = useAuth();
   const { isOpen, close } = useCart();
   const { isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
@@ -50,7 +50,7 @@ export default function CartDrawer() {
           <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 text-center">
             <span className="material-symbols-outlined text-5xl text-foreground/30">lock</span>
             <p className="text-foreground/60 text-sm">Conéctate para acceder a tu bóveda de artefactos.</p>
-            <a href={getLoginUrl()} className="btn-glow font-display font-bold px-6 py-2 text-sm uppercase tracking-wide">
+            <a onClick={(e) => { e.preventDefault(); if(typeof login === "function") login(); }} href="#" className="btn-glow font-display font-bold px-6 py-2 text-sm uppercase tracking-wide">
               Conectar
             </a>
           </div>
