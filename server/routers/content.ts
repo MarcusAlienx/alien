@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as db from "../db";
+import { invokeLLM } from "../_core/llm";
 import {
   adminProcedure,
   protectedProcedure,
@@ -42,6 +43,29 @@ export const newsRouter = router({
       await db.updateNews(id, rest as any);
       return { success: true };
     }),
+
+
+  autoGenerate: adminProcedure.mutation(async () => {
+    const result = await invokeLLM({
+      messages: [{
+        role: "user",
+        content: "Genera un artículo breve de noticias cyberpunk y fenómeno OVNI en México siguiendo el glosario de diseño de alien.mx. Devuelve un objeto JSON con las siguientes claves: title (string), excerpt (string), body (string en markdown)."
+      }],
+      responseFormat: { type: "json_object" }
+    });
+
+    const content = result.choices[0]?.message?.content;
+    if (typeof content !== "string") {
+      throw new Error("Failed to generate content");
+    }
+
+    try {
+      const parsed = JSON.parse(content);
+      return parsed as { title: string; excerpt: string; body: string };
+    } catch (e) {
+      throw new Error("Generated content was not valid JSON");
+    }
+  }),
 
   remove: adminProcedure
     .input(z.object({ id: z.number() }))

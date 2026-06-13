@@ -1,3 +1,31 @@
+
+## Firebase Deployment & Architecture
+
+Este proyecto ha sido migrado a una arquitectura serverless en **Firebase**:
+
+### Backend (Cloud Functions v2)
+La API de Express y los routers tRPC se exportan mediante `onRequest` de Firebase Functions.
+- Para desarrollo local, usa `pnpm dev`.
+- Para compilar, `pnpm build`.
+- Para desplegar, ejecuta: `firebase deploy`.
+
+### Base de Datos (Cloud SQL)
+El backend en Firebase Functions se conecta a Cloud SQL (MySQL) utilizando Drizzle ORM a través de variables de entorno (`DATABASE_URL`).
+
+### Almacenamiento (Firebase Storage)
+Todo el contenido subido desde el CMS (imágenes de artículos, inventario, reportes) se sube directamente a **Firebase Storage**. El servicio está implementado en `server/storage.ts`.
+
+### IA & Moderación Automatizada (`invokeLLM`)
+- **News CMS:** Los administradores pueden utilizar el botón **Interceptar Señal (Auto-Generar)** para generar artículos de noticias cyberpunk automáticamente.
+- **Avistamientos:** Los reportes enviados por usuarios pasan por un análisis automático del LLM. Si se detecta como **SPAM**, se rechaza. Si es **ALTA PRIORIDAD**, notifica automáticamente al dueño.
+
+### Firebase Data Connect (PostgreSQL)
+Se ha generado un esquema GraphQL en `dataconnect/schema/schema.gql` para preparar la migración o integración de nuestros modelos relacionales (Usuarios, Productos, Avistamientos) con Firebase Data Connect y CMS headless externos.
+
+### Verificación de Entorno
+Se ha validado la compilación tanto del frontend (`pnpm build`) como el arranque del servidor de Cloud Functions, garantizando que el entorno de desarrollo y la configuración de producción se ejecutan sin errores.
+
+
 # Web App Template (tRPC + Manus Auth + Database)
 
 This template gives you a React 19 + Tailwind 4 + Express 4 + tRPC 11 stack with Manus OAuth already wired. Procedures are your contracts, types flow end to end, and authentication "just works".
