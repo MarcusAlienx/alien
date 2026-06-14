@@ -1,0 +1,14 @@
+# App Hosting configuration for alien.mx
+
+# We specify to run pnpm to build the vite frontend and esbuild for the backend
+runConfig:
+  cpu: 1
+  memoryMiB: 1024
+  minInstances: 0
+  maxInstances: 10
+
+# Set output directory configured in vite and package.json build script
+# Notice the public directory is used for the static assets (from Vite build)
+env:
+  - variable: PORT
+    value: 8080

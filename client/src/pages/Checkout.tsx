@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { CRYPTO_DISCOUNT_RATE } from "@shared/const";
 import { useState } from "react";
@@ -7,6 +6,7 @@ import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
 
 export default function Checkout() {
+  const { login } = useAuth();
   const { isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
@@ -31,7 +31,7 @@ export default function Checkout() {
       <div className="py-32 text-center flex flex-col items-center gap-4">
         <span className="material-symbols-outlined text-5xl text-foreground/30">lock</span>
         <p className="text-foreground/60">Conéctate para finalizar tu transmisión de compra.</p>
-        <a href={getLoginUrl()} className="btn-glow font-display font-bold px-6 py-3 uppercase tracking-wide">Conectar</a>
+        <a onClick={(e) => { e.preventDefault(); if(typeof login === "function") login(); }} href="#" className="btn-glow font-display font-bold px-6 py-3 uppercase tracking-wide">Conectar</a>
       </div>
     );
   }

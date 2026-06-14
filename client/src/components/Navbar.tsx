@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -16,6 +15,7 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const { login } = useAuth();
   const [location] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   const { itemCount, open } = useCart();
@@ -92,7 +92,7 @@ export default function Navbar() {
             </div>
           ) : (
             <a
-              href={getLoginUrl()}
+              onClick={(e) => { e.preventDefault(); if(typeof login === "function") login(); }} href="#"
               className="hidden md:flex btn-glow font-display font-bold px-5 py-2 text-sm uppercase tracking-wide items-center"
             >
               Conectar
@@ -134,7 +134,7 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <a href={getLoginUrl()} className="btn-glow font-display font-bold px-5 py-2 text-sm uppercase tracking-wide text-center">
+            <a onClick={(e) => { e.preventDefault(); if(typeof login === "function") login(); }} href="#" className="btn-glow font-display font-bold px-5 py-2 text-sm uppercase tracking-wide text-center">
               Conectar
             </a>
           )}

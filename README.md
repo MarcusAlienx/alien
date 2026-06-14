@@ -1,3 +1,31 @@
+
+## Firebase Deployment & Architecture
+
+Este proyecto ha sido migrado a una arquitectura serverless en **Firebase**:
+
+### Backend (Cloud Functions v2)
+La API de Express y los routers tRPC se exportan mediante `onRequest` de Firebase Functions.
+- Para desarrollo local, usa `pnpm dev`.
+- Para compilar, `pnpm build`.
+- Para desplegar, ejecuta: `firebase deploy`.
+
+### Base de Datos (Cloud SQL)
+El backend en Firebase Functions se conecta a Cloud SQL (MySQL) utilizando Drizzle ORM a través de variables de entorno (`DATABASE_URL`).
+
+### Almacenamiento (Firebase Storage)
+Todo el contenido subido desde el CMS (imágenes de artículos, inventario, reportes) se sube directamente a **Firebase Storage**. El servicio está implementado en `server/storage.ts`.
+
+### IA & Moderación Automatizada (`invokeLLM`)
+- **News CMS:** Los administradores pueden utilizar el botón **Interceptar Señal (Auto-Generar)** para generar artículos de noticias cyberpunk automáticamente.
+- **Avistamientos:** Los reportes enviados por usuarios pasan por un análisis automático del LLM. Si se detecta como **SPAM**, se rechaza. Si es **ALTA PRIORIDAD**, notifica automáticamente al dueño.
+
+### Firebase Data Connect (PostgreSQL)
+Se ha generado un esquema GraphQL en `dataconnect/schema/schema.gql` para preparar la migración o integración de nuestros modelos relacionales (Usuarios, Productos, Avistamientos) con Firebase Data Connect y CMS headless externos.
+
+### Verificación de Entorno
+Se ha validado la compilación tanto del frontend (`pnpm build`) como el arranque del servidor de Cloud Functions, garantizando que el entorno de desarrollo y la configuración de producción se ejecutan sin errores.
+
+
 # Web App Template (tRPC + Manus Auth + Database)
 
 This template gives you a React 19 + Tailwind 4 + Express 4 + tRPC 11 stack with Manus OAuth already wired. Procedures are your contracts, types flow end to end, and authentication "just works".
@@ -1092,29 +1120,8 @@ Use `storagePut()` to upload files (see S3 File Storage section).
 
 ---
 
-## Manus OAuth Best Practices
+## Authentication
+Este proyecto ha sido migrado de Manus OAuth a **Firebase Authentication** usando Google Sign-In, completamente integrado con el sistema de base de datos MySQL relacional a través del router de tRPC `syncFirebaseUser` y el hook global `useAuth.ts`.
 
-**Key Rule:** Always use `window.location.origin` for redirect URLs—never hardcode domains or use `req.host`. Frontend and backend run on separate servers, so the frontend must pass its origin explicitly.
 
-**Unsupported browsers:** Safari Private Browsing, Firefox Strict ETP, Brave Aggressive Shields, or any browser blocking cookies.
-
-**Anti-patterns:**
-```ts
-// ❌ Never construct URLs from env vars or patterns
-const url = `https://${projectName}.manus.space/callback`;
-const url = `https://${process.env.APP_SUBDOMAIN}.example.com/verify`;
-```
-
-**Correct approach:** This template already implements the pattern correctly:
-- `client/src/const.ts`: `getLoginUrl(returnPath?)` encodes origin + returnPath in state
-- `server/_core/oauth.ts`: `parseState()` extracts origin from state for redirects
-
-**For invite/magic links:** When backend generates URLs, frontend must pass origin in the request:
-```ts
-// Frontend
-const createInvite = trpc.invites.create.useMutation();
-await createInvite.mutateAsync({ eventId: "123", origin: window.location.origin });
-
-// Backend - use input.origin to build the URL
-const inviteUrl = `${input.origin}/events/${eventId}/join?token=${token}`;
 ```
