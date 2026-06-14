@@ -1,7 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { MapView } from "@/components/Map";
 import SectionHeading from "@/components/SectionHeading";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +26,7 @@ const LEVEL_COLORS: Record<number, string> = {
 };
 
 export default function Sightings() {
+  const { login } = useAuth();
   const { isAuthenticated, user } = useAuth();
   const utils = trpc.useUtils();
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -110,7 +110,7 @@ export default function Sightings() {
         <button
           onClick={() => {
             if (!isAuthenticated) {
-              toast("Conéctate para reportar avistamientos", { action: { label: "Entrar", onClick: () => (window.location.href = getLoginUrl()) } });
+              toast("Conéctate para reportar avistamientos", { action: { label: "Entrar", onClick: () => (login()) } });
               return;
             }
             setShowForm((v) => !v);

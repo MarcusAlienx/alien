@@ -1,6 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import SectionHeading from "@/components/SectionHeading";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRUTH_DEADLINE_ISO } from "@shared/const";
 import { useEffect, useMemo, useState } from "react";
@@ -33,6 +32,7 @@ function useCountdown(target: string) {
 }
 
 export default function Web3Radar() {
+  const { login } = useAuth();
   const { isAuthenticated } = useAuth();
   const utils = trpc.useUtils();
   const profileQuery = trpc.community.profile.useQuery(undefined, { enabled: isAuthenticated, retry: false });
@@ -106,7 +106,7 @@ export default function Web3Radar() {
             Wallet $ALIENX
           </h3>
           {!isAuthenticated ? (
-            <a href={getLoginUrl()} className="btn-glow font-display font-bold uppercase text-xs tracking-widest py-3 mt-2 text-center">
+            <a onClick={(e) => { e.preventDefault(); login(); }} href="#" className="btn-glow font-display font-bold uppercase text-xs tracking-widest py-3 mt-2 text-center">
               Conectar para activar
             </a>
           ) : profileQuery.data?.walletAddress ? (

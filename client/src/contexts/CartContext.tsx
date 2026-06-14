@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -16,6 +15,7 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { login } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const utils = trpc.useUtils();
@@ -38,7 +38,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (productId: number, opts?: { size?: string | null; quantity?: number }) => {
       if (!isAuthenticated) {
         toast("Inicia sesión para coleccionar artefactos", {
-          action: { label: "Entrar", onClick: () => (window.location.href = getLoginUrl()) },
+          action: { label: "Entrar", onClick: login },
         });
         return;
       }

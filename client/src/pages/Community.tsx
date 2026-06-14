@@ -1,10 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import SectionHeading from "@/components/SectionHeading";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { MEMBERSHIP_TIERS } from "@shared/const";
 
 export default function Community() {
+  const { login } = useAuth();
   const { isAuthenticated, user } = useAuth();
   const profileQuery = trpc.community.profile.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   const leaderboardQuery = trpc.community.leaderboard.useQuery();
@@ -35,7 +35,7 @@ export default function Community() {
             <div className="ghost-border bg-[#0e0e0e] p-8 flex flex-col items-center text-center gap-4">
               <span className="material-symbols-outlined text-5xl text-foreground/30">badge</span>
               <p className="text-foreground/60 text-sm">Conéctate para activar tu perfil de operador y ganar XP.</p>
-              <a href={getLoginUrl()} className="btn-glow font-display font-bold px-6 py-3 uppercase tracking-wide text-sm">Activar Perfil</a>
+              <a onClick={(e) => { e.preventDefault(); if(typeof login === "function") login(); }} href="#" className="btn-glow font-display font-bold px-6 py-3 uppercase tracking-wide text-sm">Activar Perfil</a>
             </div>
           ) : profile ? (
             <div className="ghost-border bg-[#0e0e0e] p-8 relative overflow-hidden">
