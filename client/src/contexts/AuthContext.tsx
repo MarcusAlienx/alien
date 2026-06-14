@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const combinedUser = meQuery.data ?? firebaseUser ?? null;
+  const combinedUser = meQuery.data ?? null;
   const loading = meQuery.isLoading || logoutMutation.isPending || syncFirebaseUserMutation.isPending;
 
   return (
